@@ -1,0 +1,54 @@
+name: Publish articles
+
+on:
+  push:
+    paths:
+      - "posts/**"
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - uses: technote-space/get-diff-action@v3
+        id: diff
+        with:
+          SUFFIX_FILTER: .md
+
+      - name: Trim output from diff
+        id: trim
+        run: |
+          files="$(echo -n "${{ steps.diff.outputs.diff }}" | tr -d "'")"
+          echo "::set-output name=trimmed::$files"
+
+      - name: Submit to DEV as draft
+        uses: shihanng/devto-act@v0.0.6
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          auto_prefix: "yes"
+          markdown_files: ${{ steps.trim.outputs.trimmed }}
+        env:
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+
+      - name: Publish to DEV
+        uses: shihanng/devto-act@v0.0.6
+        if: ${{ github.event_name == 'push' }}
+        with:
+          auto_prefix: "yes"
+          markdown_files: ${{ steps.trim.outputs.trimmed }}
+          published: "yes"
+        env:
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v4
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          author_name: ${{ secrets.AUTHOR_NAME }}
+          author_email: ${{ secrets.AUTHOR_EMAIL }}
+          message: "Update devto.yml"
+          add: "**/devto.yml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

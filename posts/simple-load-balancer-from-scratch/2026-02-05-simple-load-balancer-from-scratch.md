@@ -3,7 +3,7 @@ title: A simple load balancer from scratch written in golang
 tags: golang, loadbalancer, fromscratch
 ---
 
-I implemented a simple HTTP load balancer from scratch in Golang to deepen my understanding of a load balancer's internal processes and to brush up on my Go skills.
+I implemented a simple HTTP load balancer from scratch in Go to deepen my understanding of a load balancer's internal processes and to brush up on my Go skills.
 This project is designed to be simple yet cover the main objectives of a load balancer. In the architecture design, I extracted its modules to have separate responsibilities, simplifying testing and future development.
 
 ## Load Balancer
